@@ -1,12 +1,7 @@
 import math
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz '
-
 IOC_ENGLISH = 0.079
-
-
-
-
 
 class CaesarFrequencyAnalysis:
     def caesar(self, text: str, k: int) -> str:
@@ -18,27 +13,35 @@ class CaesarFrequencyAnalysis:
             result += ALPHABET[new_index % 27]
         return result
 
-    def find_caesar_key(self, encoded_text: str) -> int:
-        encoded_text = encoded_text.lower()
-
-        probs = list(map(float, "0.0651738 0.0124248 0.0217339 0.0349835 0.1041442 0.0197881 0.0158610 0.0492888 0.0558094 0.0009033 0.0050529 0.0331490 0.0202124 0.0564513 0.0596302 0.0137645 0.0008606 0.0497563 0.0515760 0.0729357 0.0225134 0.0082903 0.0171272 0.0013692 0.0145984 0.0007836 0.1918182".split()))
+    def calculate_probability_score(self, text: str) -> int:
+        probs = list(map(float,
+                         "0.0651738 0.0124248 0.0217339 0.0349835 0.1041442 0.0197881 0.0158610 0.0492888 0.0558094 0.0009033 0.0050529 0.0331490 0.0202124 0.0564513 0.0596302 0.0137645 0.0008606 0.0497563 0.0515760 0.0729357 0.0225134 0.0082903 0.0171272 0.0013692 0.0145984 0.0007836 0.1918182".split()))
         letter_probabilities = {ALPHABET[i]: probs[i] for i in range(27)}
+
+        letter_counts = {}
+        for letter in ALPHABET:
+            letter_counts[letter] = 0
+        for letter in text:
+            letter_counts[letter] += 1
+
+        score = 0
+        for letter in letter_counts:
+            o_i = letter_counts[letter]
+            e_i = len(text) * letter_probabilities[letter]
+            score += (o_i - e_i) ** 2 / e_i
+
+        return score
+
+
+    def find_caesar_key(self, encoded_text: str) -> tuple[float, int]:
+        encoded_text = encoded_text.lower()
 
         scores = []
         for k in range(27):
             attempt = self.caesar(encoded_text, -k)
 
-            letter_counts = {}
-            for letter in ALPHABET:
-                letter_counts[letter] = 0
-            for letter in attempt:
-                letter_counts[letter] += 1
+            score = self.calculate_probability_score(attempt)
 
-            score = 0
-            for letter in letter_counts:
-                o_i = letter_counts[letter]
-                e_i = len(encoded_text) * letter_probabilities[letter]
-                score += (o_i - e_i) ** 2 / e_i
             scores.append(score)
 
         most_likely_key = 0
@@ -47,16 +50,18 @@ class CaesarFrequencyAnalysis:
             if score < lowest_score:
                 lowest_score = score
                 most_likely_key = i
-        return most_likely_key
+        return (lowest_score, most_likely_key)
 
     def decrypt_by_frequency(self, encoded_text: str) -> str:
-        likely_key = self.find_caesar_key(encoded_text)
+        likely_key = self.find_caesar_key(encoded_text)[1]
         decrypted = self.caesar(encoded_text, likely_key * -1)
 
         return decrypted
 
 
 class VigenereCipher:
+    def __init__(self):
+        self.caesar = CaesarFrequencyAnalysis()
     def vigenere(self, plaintext: str, key: str, decrypt: bool = False):
         plaintext = plaintext.lower()
         wrapped_key = \
@@ -75,7 +80,7 @@ class VigenereCipher:
             ciphertext += new_letter
         return ciphertext
 
-    def decrypt_vigenere(self, ciphertext, key):
+    def decrypt_vigenere(self, ciphertext, key) -> str:
         plaintext = self.vigenere(ciphertext, key, decrypt=True)
         return plaintext
 
@@ -96,9 +101,43 @@ class VigenereCipher:
         index_of_coincidence = numerator / denominator
         return index_of_coincidence
 
-    def estimate_key_length(self, ciphertext):
+    def estimate_key_length(self, ciphertext: str):
         numerator = IOC_ENGLISH - 1/27
         denominator = self.calculate_index_of_coincidence(ciphertext) - 1/27
         estimate = numerator/denominator
 
         return estimate
+
+    def break_vigenere(self, ciphertext: str):
+        estimated_key_length = round(self.estimate_key_length(ciphertext))
+
+        potential_keys = {}
+        for potential_key_length in range(estimated_key_length - 4, estimated_key_length + 4):
+
+            if potential_key_length < 1:
+                continue
+
+            potential_key = ""
+            for i in range(potential_key_length):
+                slice = "".join(ciphertext[i::potential_key_length])
+
+                shift_index = self.caesar.find_caesar_key(slice)[1]
+                potential_key += ALPHABET[shift_index]
+
+            plaintext = self.decrypt_vigenere(ciphertext, potential_key)
+            score = self.caesar.calculate_probability_score(plaintext)
+
+            potential_keys[str(potential_key)] = (plaintext, score)
+
+
+        most_likely_key = list(potential_keys.keys())[0]
+        most_likely_key_values = potential_keys[most_likely_key]
+        lowest_score = most_likely_key_values[1]
+
+        for potential_key, values in potential_keys.items():
+            if values[1] < lowest_score:
+                lowest_score = values[1]
+                most_likely_key = potential_key
+                most_likely_key_values = values
+
+        print(f"Potential key: {most_likely_key}\nCorresponding plaintext: {most_likely_key_values[0]}")
