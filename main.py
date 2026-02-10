@@ -54,7 +54,7 @@ class FrequencyAnalysis:
 
 
 class VigenereCipher:
-    def vigenere(self, plaintext, key):
+    def vigenere(self, plaintext: str, key: str, decrypt: bool = False):
         wrapped_key = \
             key * math.floor(len(plaintext) / len(key)) + key[:len(plaintext) % len(key)]
 
@@ -63,7 +63,14 @@ class VigenereCipher:
             key_equivalent = wrapped_key[index]
             shift = ALPHABET.find(key_equivalent)
 
-            new_letter = ALPHABET[(ALPHABET.find(letter) + shift) % len(ALPHABET)]
+            if decrypt:
+                new_letter = ALPHABET[(ALPHABET.find(letter) - shift) % len(ALPHABET)]
+            else:
+                new_letter = ALPHABET[(ALPHABET.find(letter) + shift) % len(ALPHABET)]
 
             ciphertext += new_letter
         return ciphertext
+
+    def decrypt_vigenere(self, ciphertext, key):
+        plaintext = self.vigenere(ciphertext, key, decrypt=True)
+        return plaintext
