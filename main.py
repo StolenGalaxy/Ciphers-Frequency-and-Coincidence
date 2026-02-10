@@ -2,6 +2,8 @@ import math
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz '
 
+IOC_ENGLISH = 0.079
+
 
 def caesar(text: str, k: int) -> str:
     text = text.lower()
@@ -15,7 +17,6 @@ def caesar(text: str, k: int) -> str:
 
 class FrequencyAnalysis:
     def find_caesar_key(self, encoded_text: str) -> int:
-
         encoded_text = encoded_text.lower()
 
         probs = list(map(float, "0.0651738 0.0124248 0.0217339 0.0349835 0.1041442 0.0197881 0.0158610 0.0492888 0.0558094 0.0009033 0.0050529 0.0331490 0.0202124 0.0564513 0.0596302 0.0137645 0.0008606 0.0497563 0.0515760 0.0729357 0.0225134 0.0082903 0.0171272 0.0013692 0.0145984 0.0007836 0.1918182".split()))
@@ -55,6 +56,7 @@ class FrequencyAnalysis:
 
 class VigenereCipher:
     def vigenere(self, plaintext: str, key: str, decrypt: bool = False):
+        plaintext = plaintext.lower()
         wrapped_key = \
             key * math.floor(len(plaintext) / len(key)) + key[:len(plaintext) % len(key)]
 
@@ -74,3 +76,27 @@ class VigenereCipher:
     def decrypt_vigenere(self, ciphertext, key):
         plaintext = self.vigenere(ciphertext, key, decrypt=True)
         return plaintext
+
+    def calculate_index_of_coincidence(self, text: str):
+        text = text.lower()
+        letter_counts = {}
+
+        for letter in ALPHABET:
+            letter_counts[letter] = 0
+        for letter in text:
+            letter_counts[letter] += 1
+
+        numerator = 0
+        for letter in ALPHABET:
+            numerator += letter_counts[letter] * (letter_counts[letter] - 1)
+        denominator = len(text) * (len(text) - 1)
+
+        index_of_coincidence = numerator / denominator
+        return index_of_coincidence
+
+    def estimate_key_length(self, ciphertext):
+        numerator = IOC_ENGLISH - 1/27
+        denominator = self.calculate_index_of_coincidence(ciphertext) - 1/27
+        estimate = numerator/denominator
+
+        return estimate
