@@ -5,17 +5,19 @@ ALPHABET = 'abcdefghijklmnopqrstuvwxyz '
 IOC_ENGLISH = 0.079
 
 
-def caesar(text: str, k: int) -> str:
-    text = text.lower()
-
-    result = ""
-    for letter in text:
-        new_index = ALPHABET.find(letter) + k
-        result += ALPHABET[new_index % 27]
-    return result
 
 
-class FrequencyAnalysis:
+
+class CaesarFrequencyAnalysis:
+    def caesar(self, text: str, k: int) -> str:
+        text = text.lower()
+
+        result = ""
+        for letter in text:
+            new_index = ALPHABET.find(letter) + k
+            result += ALPHABET[new_index % 27]
+        return result
+
     def find_caesar_key(self, encoded_text: str) -> int:
         encoded_text = encoded_text.lower()
 
@@ -24,7 +26,7 @@ class FrequencyAnalysis:
 
         scores = []
         for k in range(27):
-            attempt = caesar(encoded_text, -k)
+            attempt = self.caesar(encoded_text, -k)
 
             letter_counts = {}
             for letter in ALPHABET:
@@ -49,7 +51,7 @@ class FrequencyAnalysis:
 
     def decrypt_by_frequency(self, encoded_text: str) -> str:
         likely_key = self.find_caesar_key(encoded_text)
-        decrypted = caesar(encoded_text, likely_key * -1)
+        decrypted = self.caesar(encoded_text, likely_key * -1)
 
         return decrypted
 
