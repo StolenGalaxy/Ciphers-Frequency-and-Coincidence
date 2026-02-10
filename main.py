@@ -1,3 +1,5 @@
+import math
+
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz '
 
 
@@ -49,3 +51,19 @@ class FrequencyAnalysis:
         decrypted = caesar(encoded_text, likely_key * -1)
 
         return decrypted
+
+
+class VigenereCipher:
+    def vigenere(self, plaintext, key):
+        wrapped_key = \
+            key * math.floor(len(plaintext) / len(key)) + key[:len(plaintext) % len(key)]
+
+        ciphertext = ""
+        for index, letter in enumerate(plaintext):
+            key_equivalent = wrapped_key[index]
+            shift = ALPHABET.find(key_equivalent)
+
+            new_letter = ALPHABET[(ALPHABET.find(letter) + shift) % len(ALPHABET)]
+
+            ciphertext += new_letter
+        return ciphertext
