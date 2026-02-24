@@ -79,7 +79,7 @@ class CaesarFrequencyAnalysis:
         :param encoded_text: The caesar encoded text for which to try and decrypt.
         :return: The estimated decrypted text.
         """
-        likely_key = self.find_caesar_key(encoded_text)[1]
+        likely_key = self.find_caesar_key(encoded_text)
         decrypted = self.caesar(encoded_text, likely_key * -1)
 
         return decrypted
@@ -98,6 +98,8 @@ class VigenereCipher:
         :return: The newly encrypted/decrypted string.
         """
         plaintext = plaintext.lower()
+
+        # Repeats the keyword to match the length of the plaintext
         wrapped_key = \
             key * math.floor(len(plaintext) / len(key)) + key[:len(plaintext) % len(key)]
 
@@ -168,6 +170,7 @@ class VigenereCipher:
 
         :param ciphertext: The vigenere-encrypted text.
         """
+
         estimated_key_length = round(self.estimate_key_length(ciphertext))
 
         potential_keys = {}
@@ -180,7 +183,7 @@ class VigenereCipher:
             for i in range(potential_key_length):
                 sliced = "".join(ciphertext[i::potential_key_length])
 
-                shift_index = self.caesar.find_caesar_key(sliced)[1]
+                shift_index = self.caesar.find_caesar_key(sliced)
                 potential_key += ALPHABET[shift_index]
 
             plaintext = self.decrypt_vigenere(ciphertext, potential_key)

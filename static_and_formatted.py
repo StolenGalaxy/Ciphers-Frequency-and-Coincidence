@@ -1,24 +1,26 @@
-import math
+# THIS VERSION IS FORMATTED TO MATCH THAT WHICH IS REQUIRED BY THE INSTRUCTIONS
 
+
+
+#1
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz '
-IOC_ENGLISH = 0.079
-
-def caesar(text: str, step: int) -> str:
+def caesar(text: str, k: int) -> str:
     """
     Adds a certain step to each letter of a string.
 
     :param text: The string for which the caesar cipher should be applied to.
-    :param step: The step for each letter.
+    :param k: The step for each letter.
     :return: The altered string.
     """
     text = text.lower()
 
     result = ""
     for letter in text:
-        new_index = ALPHABET.find(letter) + step
+        new_index = ALPHABET.find(letter) + k
         result += ALPHABET[new_index % 27]
     return result
 
+#2
 def calculate_probability_score(text: str) -> int:
     """
     Calculate the probability score for a string.
@@ -84,6 +86,7 @@ def decrypt_by_frequency(encoded_text: str) -> str:
     return decrypted
 
 
+import math
 def vigenere(plaintext: str, key: str, decrypt: bool = False) -> str:
     """
     Apply a vigenere cipher to a string using a certain key.
@@ -94,6 +97,8 @@ def vigenere(plaintext: str, key: str, decrypt: bool = False) -> str:
     :return: The newly encrypted/decrypted string.
     """
     plaintext = plaintext.lower()
+
+    # Repeats the keyword to match the length of the plaintext
     wrapped_key = \
         key * math.floor(len(plaintext) / len(key)) + key[:len(plaintext) % len(key)]
 
@@ -145,6 +150,8 @@ def calculate_index_of_coincidence(text: str) -> float:
     index_of_coincidence = numerator / denominator
     return float(index_of_coincidence)
 
+
+IOC_ENGLISH = 0.079
 def estimate_key_length(ciphertext: str) -> float:
     """
     Estimate the key length of a given vigenere-encrypted string.
