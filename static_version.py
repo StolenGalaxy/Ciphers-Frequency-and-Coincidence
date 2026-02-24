@@ -78,7 +78,7 @@ def decrypt_by_frequency(encoded_text: str) -> str:
     :param encoded_text: The caesar encoded text for which to try and decrypt.
     :return: The estimated decrypted text.
     """
-    likely_key = find_caesar_key(encoded_text)[1]
+    likely_key = find_caesar_key(encoded_text)
     decrypted = caesar(encoded_text, likely_key * -1)
 
     return decrypted
@@ -122,7 +122,6 @@ def decrypt_vigenere(ciphertext, key) -> str:
     plaintext = vigenere(ciphertext, key, decrypt=True)
     return plaintext
 
-
 def calculate_index_of_coincidence(text: str) -> float:
     """
     Calculate the index of coincidence for a given string.
@@ -145,7 +144,6 @@ def calculate_index_of_coincidence(text: str) -> float:
 
     index_of_coincidence = numerator / denominator
     return float(index_of_coincidence)
-
 
 def estimate_key_length(ciphertext: str) -> float:
     """
@@ -180,7 +178,7 @@ def break_vigenere(ciphertext: str) -> None:
         for i in range(potential_key_length):
             sliced = "".join(ciphertext[i::potential_key_length])
 
-            shift_index = find_caesar_key(sliced)[1]
+            shift_index = find_caesar_key(sliced)
             potential_key += ALPHABET[shift_index]
 
         plaintext = decrypt_vigenere(ciphertext, potential_key)
