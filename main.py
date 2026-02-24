@@ -20,7 +20,7 @@ class CaesarFrequencyAnalysis:
             result += ALPHABET[new_index % 27]
         return result
 
-    def calculate_probability_score(self, text: str) -> int:
+    def calculate_probability_score(self, text: str) -> float:
         """
         Calculate the probability score for a string.
 

@@ -1,8 +1,8 @@
 # THIS VERSION IS FORMATTED TO MATCH THAT WHICH IS REQUIRED BY THE INSTRUCTIONS
 
 
+# 1 -----
 
-#1
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz '
 def caesar(text: str, k: int) -> str:
     """
@@ -20,8 +20,12 @@ def caesar(text: str, k: int) -> str:
         result += ALPHABET[new_index % 27]
     return result
 
-#2
-def calculate_probability_score(text: str) -> int:
+# End of 1 -----
+
+
+# 2 ------
+
+def calculate_probability_score(text: str) -> float:
     """
     Calculate the probability score for a string.
 
@@ -46,18 +50,18 @@ def calculate_probability_score(text: str) -> int:
 
     return score
 
-def find_caesar_key(encoded_text: str) -> int:
+def find_caesar_key(encodedText: str) -> int:
     """
     Attempt to find the most likely caesar key for a string using frequency analysis.
 
     :param encoded_text: The encoded text for which the most likely caesar key should be found.
     :return: The most likely caesar key for that text.
     """
-    encoded_text = encoded_text.lower()
+    encodedText = encodedText.lower()
 
     scores = []
     for k in range(27):
-        attempt = caesar(encoded_text, -k)
+        attempt = caesar(encodedText, -k)
 
         score = calculate_probability_score(attempt)
 
@@ -70,7 +74,6 @@ def find_caesar_key(encoded_text: str) -> int:
             lowest_score = score
             most_likely_key = i
     return most_likely_key
-
 
 def decrypt_by_frequency(encoded_text: str) -> str:
     """
@@ -85,6 +88,10 @@ def decrypt_by_frequency(encoded_text: str) -> str:
 
     return decrypted
 
+# End of 2 -----
+
+
+# 3 -----
 
 import math
 def vigenere(plaintext: str, key: str, decrypt: bool = False) -> str:
@@ -115,6 +122,10 @@ def vigenere(plaintext: str, key: str, decrypt: bool = False) -> str:
         ciphertext += new_letter
     return ciphertext
 
+# End of 3 -----
+
+
+# 4 -----
 
 def decrypt_vigenere(ciphertext, key) -> str:
     """
@@ -127,14 +138,19 @@ def decrypt_vigenere(ciphertext, key) -> str:
     plaintext = vigenere(ciphertext, key, decrypt=True)
     return plaintext
 
-def calculate_index_of_coincidence(text: str) -> float:
+# End of 4 -----
+
+
+# 5 -----
+
+def ioc(s: str) -> float:
     """
     Calculate the index of coincidence for a given string.
 
-    :param text: The text for which the IOC should be calculated.
+    :param s: The text for which the IOC should be calculated.
     :return: The index of coincidence for the string.
     """
-    text = text.lower()
+    text = s.lower()
     letter_counts = {}
 
     for letter in ALPHABET:
@@ -150,21 +166,29 @@ def calculate_index_of_coincidence(text: str) -> float:
     index_of_coincidence = numerator / denominator
     return float(index_of_coincidence)
 
+# End of 5 -----
+
+
+# 6 -----
 
 IOC_ENGLISH = 0.079
-def estimate_key_length(ciphertext: str) -> float:
+def estimated_key_length(c: str) -> float:
     """
     Estimate the key length of a given vigenere-encrypted string.
 
-    :param ciphertext: The vigenere-encrypted string.
+    :param c: The vigenere-encrypted string.
     :return: The estimated key length of the given string.
     """
     numerator = IOC_ENGLISH - 1/27
-    denominator = calculate_index_of_coincidence(ciphertext) - 1/27
+    denominator = ioc(c) - 1/27
     estimate = numerator/denominator
 
     return float(estimate)
 
+# End of 6 -----
+
+
+# 7 -----
 
 def break_vigenere(ciphertext: str) -> None:
     """
@@ -173,10 +197,10 @@ def break_vigenere(ciphertext: str) -> None:
 
     :param ciphertext: The vigenere-encrypted text.
     """
-    estimated_key_length = round(estimate_key_length(ciphertext))
+    estimated_key_length_value = round(estimated_key_length(ciphertext))
 
     potential_keys = {}
-    for potential_key_length in range(estimated_key_length - 4, estimated_key_length + 4):
+    for potential_key_length in range(estimated_key_length_value - 4, estimated_key_length_value + 4):
 
         if potential_key_length < 1:
             continue
@@ -205,3 +229,5 @@ def break_vigenere(ciphertext: str) -> None:
             most_likely_key_values = values
 
     print(f"Potential key: {most_likely_key}\nCorresponding plaintext: {most_likely_key_values[0]}")
+
+# End of 7 -----
